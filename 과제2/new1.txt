@@ -1,0 +1,81 @@
+INCLUDE irvine32.inc
+
+.DATA
+
+StringBuff BYTE 40 DUP(0)
+sPromp BYTE "Input string : ",0
+
+.CODE
+main PROC
+L0:
+	mov edx, OFFSET sPromp
+	call WriteString
+	
+	mov edx, OFFSET StringBuff
+	mov ecx, LENGTHOF StringBuff
+	call ReadString
+	cmp eax, 0
+	je Bye
+	jne L1
+L1:
+	mov ecx, eax
+	
+	call ReverseChar
+	jmp L0
+Bye:
+	exit
+main ENDP
+
+ReverseChar PROC
+	push ecx
+	push eax
+
+
+	mov ebx, ecx
+	mov esi, OFFSET StringBuff
+	add esi, ebx		; now at end of string
+	dec esi
+	
+L0:
+	mov al, [esi]
+	cmp al, 'A'
+	jae LUp
+	jb Quit
+
+LUp:
+	cmp al, 'Z'
+	jbe ConvUp
+	ja CheckLow 
+
+CheckLow:
+	cmp al, 'a'
+	jae Llow
+	jb Quit
+
+Llow:
+	cmp al, 'z'
+	jbe ConvLow
+	ja Quit
+
+ConvUp:
+	mov al, [esi]
+	add al, 32
+	jmp Quit
+
+ConvLow:
+	mov al, [esi]
+	sub al, 32
+	jmp quit
+
+Quit:
+	call WriteChar
+	dec esi
+	loop L0
+
+pop ecx
+pop eax
+ret
+
+ReverseChar ENDP
+
+END main
